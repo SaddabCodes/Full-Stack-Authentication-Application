@@ -1,0 +1,10 @@
+# Development Environment Configuration
+# This file contains configuration specific to the
+# development environment.
+# Used for:
+# - Local development
+# - Debugging and testing features
+# - Developer-friendly settings
+
+server:
+  port: 8083

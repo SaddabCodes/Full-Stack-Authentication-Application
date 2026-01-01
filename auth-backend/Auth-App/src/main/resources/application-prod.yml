@@ -1,0 +1,10 @@
+# Production Environment Configuration
+# This file contains configuration for the production
+# environment where the application is live.
+#
+# Used for:
+# - Live users and real data
+# - High security and performance
+
+server:
+  port: 8080

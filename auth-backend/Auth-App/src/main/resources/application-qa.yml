@@ -1,0 +1,10 @@
+# QA (Quality Assurance) Environment Configuration
+# This file contains configuration for the QA environment,
+# where the application is tested before production.
+# Used for:
+# - Functional testing
+# - Integration testing
+# - Bug verification
+
+server:
+  port: 8081
