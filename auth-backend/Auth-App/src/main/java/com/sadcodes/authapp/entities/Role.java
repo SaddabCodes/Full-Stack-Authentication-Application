@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "user_roles")
+@Table(name = "roles")
 public class Role {
     @Id
     private UUID id = UUID.randomUUID();

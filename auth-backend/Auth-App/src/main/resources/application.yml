@@ -3,17 +3,6 @@ spring:
     name: Auth-App
   profiles:
     active: dev
-  datasource:
-    url: jdbc:mysql://localhost:3306/auth_app
-    username: root
-    password: 1234
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-
-
 
 server:
   port: 8082
