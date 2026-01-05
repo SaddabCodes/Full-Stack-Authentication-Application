@@ -2,20 +2,34 @@ package com.sadcodes.authapp.service.impl;
 
 import com.sadcodes.authapp.config.ProjectConfig;
 import com.sadcodes.authapp.dto.UserDto;
+import com.sadcodes.authapp.entities.User;
+import com.sadcodes.authapp.repository.UserRepository;
 import com.sadcodes.authapp.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserService userService;
-    private final ProjectConfig projectConfig;
+    private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public UserDto createUser(UserDto userDto) {
-        return null;
+        if (userDto.getEmail() != null || userDto.getEmail().isBlank()) {
+            throw new RuntimeException("Email is required");
+        }
+
+        if (userRepository.existsByEmail(userDto.getEmail())) {
+            throw new RuntimeException("Email already exist");
+        }
+        User user = modelMapper.map(userDto, User.class);
+        User saveUser = userRepository.save(user);
+        UserDto dto = modelMapper.map(saveUser, UserDto.class);
+        return dto;
+
     }
 
     @Override
