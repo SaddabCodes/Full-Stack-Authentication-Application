@@ -21,4 +21,8 @@ public class UserController {
     public ResponseEntity<UserDto>createUser(@RequestBody UserDto userDto){
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userDto));
     }
+
+    public ResponseEntity<Iterable<UserDto>>getAllUsers(){
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUser());
+    }
 }
