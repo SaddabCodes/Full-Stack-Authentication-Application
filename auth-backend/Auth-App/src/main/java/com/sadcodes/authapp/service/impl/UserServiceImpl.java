@@ -34,6 +34,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserByEmail(String email) {
+
         return null;
     }
 
