@@ -5,6 +5,7 @@ import com.sadcodes.authapp.entities.User;
 import com.sadcodes.authapp.exceptions.ResourceNotFoundException;
 import com.sadcodes.authapp.repository.UserRepository;
 import com.sadcodes.authapp.service.UserService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -17,13 +18,14 @@ public class UserServiceImpl implements UserService {
     private final ModelMapper modelMapper;
 
     @Override
+    @Transactional
     public UserDto createUser(UserDto userDto) {
         if (userDto.getEmail() != null || userDto.getEmail().isBlank()) {
-            throw new RuntimeException("Email is required");
+            throw new IllegalArgumentException("Email is required");
         }
 
         if (userRepository.existsByEmail(userDto.getEmail())) {
-            throw new RuntimeException("Email already exist");
+            throw new IllegalArgumentException("User with given email is already exist");
         }
         User user = modelMapper.map(userDto, User.class);
         User saveUser = userRepository.save(user);
