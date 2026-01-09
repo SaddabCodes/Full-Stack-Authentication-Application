@@ -1,8 +1,8 @@
 package com.sadcodes.authapp.service.impl;
 
-import com.sadcodes.authapp.config.ProjectConfig;
 import com.sadcodes.authapp.dto.UserDto;
 import com.sadcodes.authapp.entities.User;
+import com.sadcodes.authapp.exceptions.ResourceNotFoundException;
 import com.sadcodes.authapp.repository.UserRepository;
 import com.sadcodes.authapp.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +34,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserByEmail(String email) {
-
-        return null;
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User with given email: " + email + " is not present"));
+        return modelMapper.map(user, UserDto.class);
     }
 
     @Override
