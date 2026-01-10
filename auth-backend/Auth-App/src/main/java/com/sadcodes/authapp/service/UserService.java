@@ -9,4 +9,5 @@ public interface UserService {
     UserDto updateUser(UserDto userDto, String userId);
     void deleteUser(String userId);
     Iterable<UserDto>getAllUser();
+    UserDto getUserById(String userId);
 }
