@@ -4,6 +4,7 @@ import com.sadcodes.authapp.dto.UserDto;
 import com.sadcodes.authapp.service.AuthService;
 import com.sadcodes.authapp.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -11,9 +12,11 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDto registerDto(UserDto userDto) {
+        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
         UserDto user = userService.createUser(userDto);
         return user;
     }
