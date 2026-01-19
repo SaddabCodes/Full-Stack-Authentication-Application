@@ -3,6 +3,8 @@ package com.sadcodes.authapp.security;
 import com.sadcodes.authapp.entities.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Getter
+@Setter
 @Service
 public class JwtService {
 
