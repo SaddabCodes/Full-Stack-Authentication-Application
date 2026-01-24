@@ -79,13 +79,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         });
 
             } catch (ExpiredJwtException e) {
-                e.printStackTrace();
+                request.setAttribute("error","Token expired");
+//                e.printStackTrace();
             } catch (MalformedJwtException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
+                request.setAttribute("error","Invalid Token");
             } catch (JwtException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
+                request.setAttribute("error","Token expired");
             } catch (Exception e) {
-                e.printStackTrace();
+                request.setAttribute("error","Token expired");
+//                e.printStackTrace();
             }
         }
         filterChain.doFilter(request, response);
