@@ -58,7 +58,8 @@ public class AuthController {
         // generate token
         String accessToken = jwtService.generateAccessToken(user);
 
-        TokenResponse tokenResponse = TokenResponse.of(accessToken, "", jwtService.getAccessTtlSeconds(), modelMapper.map(user, UserDto.class));
+        TokenResponse tokenResponse = TokenResponse.of(accessToken, "",
+                jwtService.getAccessTtlSeconds(), modelMapper.map(user, UserDto.class));
         return ResponseEntity.ok(tokenResponse);
 
     }
