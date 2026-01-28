@@ -3,6 +3,7 @@ package com.sadcodes.authapp.controller;
 import com.sadcodes.authapp.dto.LoginRequest;
 import com.sadcodes.authapp.dto.TokenResponse;
 import com.sadcodes.authapp.dto.UserDto;
+import com.sadcodes.authapp.entities.RefreshToken;
 import com.sadcodes.authapp.entities.User;
 import com.sadcodes.authapp.repository.UserRepository;
 import com.sadcodes.authapp.security.JwtService;
@@ -20,6 +21,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.Instant;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
@@ -41,6 +45,16 @@ public class AuthController {
         if (!user.isEnable()) {
             throw new DisabledException("User is disabled");
         }
+
+        String jti = UUID.randomUUID().toString();
+        var refreshToken = RefreshToken.builder()
+                .jti(jti)
+                .user(user)
+                .createdAt(Instant.now())
+                .expiresAt(Instant.now().plusSeconds(jwtService.getRefreshTtlSeconds()))
+                .revoked(false)
+                .build();
+
         // generate token
         String accessToken = jwtService.generateAccessToken(user);
 

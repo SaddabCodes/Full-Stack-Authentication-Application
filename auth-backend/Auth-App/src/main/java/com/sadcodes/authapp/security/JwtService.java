@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.sql.Date;
+import java.util.Date;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +25,7 @@ public class JwtService {
     private final long accessTtlSeconds;
     private final long refreshTtlSeconds;
     private final String issuer;
+    private static final int MIN_SECRET_LENGTH = 32;
 
     public JwtService(
             @Value("${security.jwt.secret}") String secret,
@@ -32,7 +33,7 @@ public class JwtService {
             @Value("${security.jwt.refresh-ttl-seconds}") long refreshTtlSeconds,
             @Value("${security.jwt.issuer}") String issuer) {
 
-        if (secret == null || secret.length() < 64) {
+        if (secret == null || secret.length() < MIN_SECRET_LENGTH) {
             throw new IllegalArgumentException("Invalid Secret");
         }
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
@@ -86,8 +87,9 @@ public class JwtService {
 
     public boolean isAccessToken(String token) {
         Claims c = parse(token).getPayload();
-        return "refresh".equals(c.get("typ"));
+        return "access".equals(c.get("typ"));
     }
+
 
     public UUID getUserId(String token) {
         Claims c = parse(token).getPayload();
@@ -98,11 +100,16 @@ public class JwtService {
         return parse(token).getPayload().getId();
     }
 
-    public List<String >getRoles(String token){
+    public List<String> getRoles(String token) {
         Claims c = parse(token).getPayload();
-        List<String> roles = (List<String>) c.get("roles");
-        return roles;
+        Object roles = c.get("roles");
+
+        if (roles instanceof List<?> list) {
+            return list.stream().map(String::valueOf).toList();
+        }
+        return List.of();
     }
+
 
     public String  getEmail(String token){
         Claims c = parse(token).getPayload();
