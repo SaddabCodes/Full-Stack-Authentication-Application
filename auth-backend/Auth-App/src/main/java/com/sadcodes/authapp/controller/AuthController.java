@@ -5,6 +5,7 @@ import com.sadcodes.authapp.dto.TokenResponse;
 import com.sadcodes.authapp.dto.UserDto;
 import com.sadcodes.authapp.entities.RefreshToken;
 import com.sadcodes.authapp.entities.User;
+import com.sadcodes.authapp.repository.RefreshTokenRepository;
 import com.sadcodes.authapp.repository.UserRepository;
 import com.sadcodes.authapp.security.JwtService;
 import com.sadcodes.authapp.service.impl.AuthServiceImpl;
@@ -35,6 +36,7 @@ public class AuthController {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final ModelMapper modelMapper;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest loginRequest) {
         // authenticate
@@ -47,7 +49,7 @@ public class AuthController {
         }
 
         String jti = UUID.randomUUID().toString();
-        var refreshToken = RefreshToken.builder()
+        var refreshTokenObj = RefreshToken.builder()
                 .jti(jti)
                 .user(user)
                 .createdAt(Instant.now())
@@ -55,10 +57,13 @@ public class AuthController {
                 .revoked(false)
                 .build();
 
+        // refresh token save -- information
+        refreshTokenRepository.save(refreshTokenObj);
+
         // generate token
         String accessToken = jwtService.generateAccessToken(user);
-
-        TokenResponse tokenResponse = TokenResponse.of(accessToken, "",
+        String refreshToken = jwtService.generateRefreshToken(user,refreshTokenObj.getJti());
+        TokenResponse tokenResponse = TokenResponse.of(accessToken, refreshToken,
                 jwtService.getAccessTtlSeconds(), modelMapper.map(user, UserDto.class));
         return ResponseEntity.ok(tokenResponse);
 
