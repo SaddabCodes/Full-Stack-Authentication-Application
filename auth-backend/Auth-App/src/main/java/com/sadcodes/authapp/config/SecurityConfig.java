@@ -1,6 +1,7 @@
 package com.sadcodes.authapp.config;
 
 import com.sadcodes.authapp.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,42 +18,47 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 
-@RequiredArgsConstructor
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, ObjectMapper objectMapper) {
-        httpSecurity.csrf(http -> http.disable())
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   ObjectMapper objectMapper) throws Exception {
+
+        http.csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm ->
-                        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        httpSecurity.authorizeHttpRequests(http ->
-                http.requestMatchers("/api/v1/auth/register").permitAll()
-                        .requestMatchers("/api/v1/auth/login").permitAll()
+                        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login").permitAll()
                         .anyRequest().authenticated()
-        ).httpBasic(Customizer.withDefaults())
-                .exceptionHandling(ex->
-                        ex.authenticationEntryPoint((request,response,e)->{
-                            // error message
-                            e.printStackTrace();
-                            response.setStatus(401);
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, e) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json");
-                            String message = "Unauthorized Access " +e.getMessage();
-                            String error = request.getAttribute("error").toString();
-                            if (error != null){
-                                message = error;
-                            }
-                            Map<String ,String >errorMap = Map.of("message",message,"statusCode",Integer.toString(401));
-                            var objectMappers= new ObjectMapper();
-                            response.getWriter().write(objectMappers.writeValueAsString(errorMap));
-                        }))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return httpSecurity.build();
+                            Object errorAttr = request.getAttribute("error");
+                            String message = errorAttr != null
+                                    ? errorAttr.toString()
+                                    : "Unauthorized";
+
+                            Map<String, Object> body = Map.of(
+                                    "message", message,
+                                    "statusCode", 401
+                            );
+
+                            response.getWriter()
+                                    .write(objectMapper.writeValueAsString(body));
+                        })
+                )
+                .addFilterBefore(jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
     }
 
     @Bean
@@ -61,8 +67,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration){
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
-
 }

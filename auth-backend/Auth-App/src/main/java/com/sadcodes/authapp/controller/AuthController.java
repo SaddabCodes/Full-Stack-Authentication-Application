@@ -38,6 +38,7 @@ public class AuthController {
     private final ModelMapper modelMapper;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest loginRequest) {
         // authenticate
         Authentication authenticate = authenticate(loginRequest);

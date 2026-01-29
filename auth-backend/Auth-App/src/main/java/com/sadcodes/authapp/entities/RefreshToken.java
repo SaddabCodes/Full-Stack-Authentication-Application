@@ -1,46 +1,49 @@
 package com.sadcodes.authapp.entities;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
 import java.util.UUID;
 
-
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Entity
 @Table(name = "refresh_token", indexes = {
         @Index(name = "refresh_token_jti_idx", columnList = "jti", unique = true),
         @Index(name = "refresh_token_user_id_idx", columnList = "user_id")
 })
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class RefreshToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", updatable = false, nullable = false)
-    private UUID id = UUID.randomUUID();
+    @Column(updatable = false, nullable = false)
+    private UUID id;
 
-    @Column(name = "jti", unique = true, nullable = false, updatable = false)
+    @Column(nullable = false, unique = true, updatable = false)
     private String jti;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
     private User user;
 
-    @Column(updatable = false, nullable = false)
+    @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
     @Column(updatable = false)
     private Instant expiresAt;
 
     @Column(nullable = false)
-    private boolean revoked;
+    private boolean revoked = false;
 
-    @Column(nullable = false)
-    private String replacedByToken = "";
+    @Column
+    private String replacedByToken;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = Instant.now();
+    }
 }

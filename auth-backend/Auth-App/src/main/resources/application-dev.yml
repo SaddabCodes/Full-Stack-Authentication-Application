@@ -27,7 +27,7 @@ spring:
 
 security:
   jwt:
-    secret: ${JWT_SECRET:eijefvhdsjhaq73275y4rhjfdkskhw2387hkwsdhgw7}
+    secret: ${JWT_SECRET:abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890}
     issuer: ${JWT_ISSUER:com.sadcodes.authapp}
 
     access-ttl-seconds: ${JWT_ACCESS_TTL_SECONDS:3600}
