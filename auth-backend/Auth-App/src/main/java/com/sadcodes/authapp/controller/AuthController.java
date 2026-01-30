@@ -1,6 +1,7 @@
 package com.sadcodes.authapp.controller;
 
 import com.sadcodes.authapp.dto.LoginRequest;
+import com.sadcodes.authapp.dto.RefreshTokenRequest;
 import com.sadcodes.authapp.dto.TokenResponse;
 import com.sadcodes.authapp.dto.UserDto;
 import com.sadcodes.authapp.entities.RefreshToken;
@@ -10,6 +11,7 @@ import com.sadcodes.authapp.repository.UserRepository;
 import com.sadcodes.authapp.security.JwtService;
 import com.sadcodes.authapp.service.CookieService;
 import com.sadcodes.authapp.service.impl.AuthServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -26,6 +28,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -66,10 +70,10 @@ public class AuthController {
 
         // generate token
         String accessToken = jwtService.generateAccessToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user,refreshTokenObj.getJti());
+        String refreshToken = jwtService.generateRefreshToken(user, refreshTokenObj.getJti());
 
         // use cookie service to attach refresh token in cookie
-        cookieService.attachRefreshCookie(response,refreshToken, (int) jwtService.getAccessTtlSeconds());
+        cookieService.attachRefreshCookie(response, refreshToken, (int) jwtService.getAccessTtlSeconds());
         cookieService.addNoStoreHeaders(response);
 
         TokenResponse tokenResponse = TokenResponse.of(accessToken, refreshToken,
@@ -85,6 +89,36 @@ public class AuthController {
         } catch (Exception e) {
             throw new BadCredentialsException("Invalid username or password");
         }
+    }
+
+    public ResponseEntity<TokenResponse> refreshToken(
+            @RequestBody(required = false) RefreshTokenRequest body,
+            HttpServletResponse response, HttpServletRequest request
+    ) {
+        String refreshToken = readRefreshTokenFromRequest(body, request)
+                .orElseThrow(() -> new BadCredentialsException("Invalid refresh token"));
+
+    }
+
+    private Optional<String> readRefreshTokenFromRequest(RefreshTokenRequest body, HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            Optional<String> fromCookie = Arrays.stream(request.getCookies())
+                    .filter(c -> cookieService.getRefreshTokenCookieName().equals(c.getName()))
+                    .map(c -> c.getValue())
+                    .filter(v -> !v.isBlank())
+                    .findFirst();
+            if (fromCookie.isPresent()) {
+                return fromCookie;
+            }
+        }
+        if (body!=null && body.refreshToken()!=null && !body.refreshToken().isBlank()){
+            return Optional.of(body.refreshToken());
+        }
+        String refreshHeader = request.getHeader("X-Refresh-Token");
+        if (refreshHeader !=null && !refreshHeader.isBlank()){
+            return Optional.of(refreshHeader.trim());
+        }
+        return Optional.empty();
     }
 
     @PostMapping("/register")
