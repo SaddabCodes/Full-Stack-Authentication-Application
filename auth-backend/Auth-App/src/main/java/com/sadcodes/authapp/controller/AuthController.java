@@ -98,6 +98,8 @@ public class AuthController {
         String refreshToken = readRefreshTokenFromRequest(body, request)
                 .orElseThrow(() -> new BadCredentialsException("Invalid refresh token"));
 
+        if (!jwtService.isAccessToken())
+
     }
 
     private Optional<String> readRefreshTokenFromRequest(RefreshTokenRequest body, HttpServletRequest request) {
