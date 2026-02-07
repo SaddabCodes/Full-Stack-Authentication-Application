@@ -38,7 +38,10 @@ public class SecurityConfig {
                                 "/api/v1/auth/login","/api/v1/auth/refresh",
                                 "/api/v1/auth/logout").permitAll()
                         .anyRequest().authenticated()
-                )
+                ).oauth2Login((oauth2)->
+                        oauth2.successHandler(null)
+                                .failureHandler(null))
+                .logout(out-> out.disable())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, e) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
