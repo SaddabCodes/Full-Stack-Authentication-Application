@@ -1,6 +1,7 @@
 package com.sadcodes.authapp.config;
 
 import com.sadcodes.authapp.security.JwtAuthenticationFilter;
+import com.sadcodes.authapp.security.OAuth2SuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +25,7 @@ import java.util.Map;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
@@ -39,7 +41,7 @@ public class SecurityConfig {
                                 "/api/v1/auth/logout").permitAll()
                         .anyRequest().authenticated()
                 ).oauth2Login((oauth2)->
-                        oauth2.successHandler(null)
+                        oauth2.successHandler(oAuth2SuccessHandler)
                                 .failureHandler(null))
                 .logout(out-> out.disable())
                 .exceptionHandling(ex -> ex
