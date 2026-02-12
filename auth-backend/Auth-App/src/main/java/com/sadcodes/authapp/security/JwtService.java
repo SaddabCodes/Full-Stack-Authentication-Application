@@ -10,11 +10,8 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
+import java.util.*;
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -42,11 +39,25 @@ public class JwtService {
         this.issuer = issuer;
     }
 
-    // generate token
     public String generateAccessToken(User user) {
+
         Instant now = Instant.now();
-        List<String> roles = user.getRoles() == null ? List.of() :
-                user.getRoles().stream().map(u -> u.getName()).toList();
+
+        List<String> roles = user.getRoles() == null
+                ? List.of()
+                : user.getRoles()
+                .stream()
+                .map(role -> role.getName())
+                .toList();
+
+        Map<String, Object> claims = new HashMap<>();
+
+        if (user.getEmail() != null) {
+            claims.put("email", user.getEmail());
+        }
+
+        claims.put("roles", roles);
+        claims.put("typ", "access");
 
         return Jwts.builder()
                 .id(UUID.randomUUID().toString())
@@ -54,11 +65,8 @@ public class JwtService {
                 .issuer(issuer)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusSeconds(accessTtlSeconds)))
-                .claims(Map.of(
-                        "email", user.getEmail(),
-                        "roles", roles,
-                        "typ", "access"
-                )).signWith(key, SignatureAlgorithm.HS512)
+                .claims(claims)
+                .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
 
