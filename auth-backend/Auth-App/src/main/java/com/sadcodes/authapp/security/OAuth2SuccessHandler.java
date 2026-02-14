@@ -60,6 +60,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         switch (registrationId) {
 
             case "google" -> {
+
                 String providerId = oAuth2User.getAttribute("sub");
                 String name = oAuth2User.getAttribute("name");
                 String picture = oAuth2User.getAttribute("picture");
@@ -67,36 +68,63 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
                 user = userRepository
                         .findByProviderAndProviderId(Provider.GOOGLE, providerId)
-                        .orElseGet(() -> userRepository.save(
-                                User.builder()
-                                        .email(email)
-                                        .name(name)
-                                        .image(picture)
-                                        .provider(Provider.GOOGLE)
-                                        .providerId(providerId)
-                                        .build()
-                        ));
+                        .orElseGet(() -> {
+
+                            // CHECK EMAIL FIRST
+                            return userRepository.findByEmail(email)
+                                    .map(existingUser -> {
+                                        existingUser.setProvider(Provider.GOOGLE);
+                                        existingUser.setProviderId(providerId);
+                                        return userRepository.save(existingUser);
+                                    })
+                                    .orElseGet(() ->
+                                            userRepository.save(
+                                                    User.builder()
+                                                            .email(email)
+                                                            .name(name)
+                                                            .image(picture)
+                                                            .provider(Provider.GOOGLE)
+                                                            .providerId(providerId)
+                                                            .build()
+                                            )
+                                    );
+                        });
             }
 
+
             case "github" -> {
+
                 String providerId = oAuth2User.getAttribute("id").toString();
                 String name = oAuth2User.getAttribute("name");
                 String image = oAuth2User.getAttribute("avatar_url");
                 String email = oAuth2User.getAttribute("email");
 
-
                 user = userRepository
                         .findByProviderAndProviderId(Provider.GITHUB, providerId)
-                        .orElseGet(() -> userRepository.save(
-                                User.builder()
-                                        .email(email)
-                                        .name(name)
-                                        .image(image)
-                                        .provider(Provider.GITHUB)
-                                        .providerId(providerId)
-                                        .build()
-                        ));
+                        .orElseGet(() -> {
+
+                            return userRepository.findByEmail(email)
+                                    .map(existingUser -> {
+                                        existingUser.setProvider(Provider.GITHUB);
+                                        existingUser.setProviderId(providerId);
+                                        return userRepository.save(existingUser);
+                                    })
+                                    .orElseGet(() ->
+                                            userRepository.save(
+                                                    User.builder()
+                                                            .email(email)
+                                                            .name(name)
+                                                            .image(image)
+                                                            .provider(Provider.GITHUB)
+                                                            .providerId(providerId)
+                                                            .build()
+                                            )
+                                    );
+                        });
             }
+            default -> throw new IllegalStateException("Unsupported provider: " + registrationId);
+
+
         }
 
 
@@ -111,7 +139,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         cookieService.attachRefreshCookie(response, refreshToken, (int) jwtService.getAccessTtlSeconds());
 //        response.getWriter().write("Login successful");
-        response.sendRedirect(frontEndSuccessUrl );
+        response.sendRedirect(frontEndSuccessUrl);
     }
 
 }
