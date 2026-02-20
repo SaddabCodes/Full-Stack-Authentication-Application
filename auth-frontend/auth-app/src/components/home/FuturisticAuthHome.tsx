@@ -1,46 +1,22 @@
-import { useState, useEffect } from "react";
-import { Button } from "./components/ui/button";
-import { ShieldCheck, Lock, Zap, UserCheck, Sun, Moon } from "lucide-react";
+import { Button } from "../ui/button";
+import { ShieldCheck, Lock, Zap, UserCheck } from "lucide-react";
 import { motion } from "framer-motion";
 
-export default function FuturisticAuthHome() {
-  const [dark, setDark] = useState(true);
-
-  // Apply dark class to html element (recommended way for shadcn + tailwind)
-  useEffect(() => {
-    const root = window.document.documentElement;
-    if (dark) {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-  }, [dark]);
-
+function FuturisticAuthHome() {
   return (
-    <div className="min-h-screen transition-colors duration-500 bg-white text-black dark:bg-gradient-to-br dark:from-black dark:via-gray-900 dark:to-gray-800 dark:text-white">
-      {/* Theme Toggle */}
-      <div className="flex justify-end p-6">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setDark(!dark)}
-          className="rounded-full"
-        >
-          {dark ? <Sun size={18} /> : <Moon size={18} />}
-        </Button>
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
       {/* Hero Section */}
-      <section className="flex flex-col items-center justify-center text-center px-6 py-20">
+      <section className="flex flex-col items-center justify-center text-center px-6 py-28">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent"
+          className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r
+           from-cyan-400 to-blue-500 bg-clip-text text-transparent"
         >
           Secure. Fast. Reliable Authentication.
         </motion.h1>
-        <p className="max-w-2xl text-lg mb-8 text-gray-600 dark:text-gray-300">
+        <p className="text-gray-300 max-w-2xl text-lg mb-8">
           A modern authentication platform built with security-first principles,
           lightning-fast performance, and seamless user experience.
         </p>
@@ -82,7 +58,7 @@ export default function FuturisticAuthHome() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 px-6 bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
+      <section className="bg-gray-900 py-20 px-6">
         <div className="max-w-5xl mx-auto text-center">
           <h2 className="text-4xl font-semibold mb-12">How It Works</h2>
           <div className="grid md:grid-cols-3 gap-10">
@@ -106,7 +82,7 @@ export default function FuturisticAuthHome() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-6 text-center bg-blue-600 text-white dark:bg-gradient-to-r dark:from-blue-600 dark:to-cyan-500 transition-colors duration-500">
+      <section className="py-24 px-6 text-center bg-gradient-to-r from-blue-600 to-cyan-500">
         <h2 className="text-4xl font-bold mb-6">
           Ready to Secure Your Application?
         </h2>
@@ -119,7 +95,7 @@ export default function FuturisticAuthHome() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 text-center text-sm bg-gray-200 text-gray-700 dark:bg-black dark:text-gray-400 transition-colors duration-500">
+      <footer className="bg-black py-8 text-center text-gray-400 text-sm">
         © {new Date().getFullYear()} AuthApp. All rights reserved.
       </footer>
     </div>
@@ -134,13 +110,11 @@ interface FeatureCardProps {
 
 function FeatureCard({ icon, title, description }: FeatureCardProps) {
   return (
-    <div className="rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+    <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-lg hover:scale-105 transition-transform">
       <div className="p-6 flex flex-col items-center text-center gap-4">
-        <div className="text-blue-600 dark:text-cyan-400">{icon}</div>
+        <div className="text-cyan-400">{icon}</div>
         <h3 className="text-xl font-semibold">{title}</h3>
-        <p className="text-gray-600 dark:text-gray-400 text-sm">
-          {description}
-        </p>
+        <p className="text-gray-400 text-sm">{description}</p>
       </div>
     </div>
   );
@@ -155,13 +129,11 @@ interface StepProps {
 function Step({ number, title, description }: StepProps) {
   return (
     <div className="flex flex-col items-center text-center gap-4">
-      <div className="text-4xl font-bold text-blue-600 dark:text-cyan-400">
-        {number}
-      </div>
+      <div className="text-4xl font-bold text-cyan-400">{number}</div>
       <h3 className="text-xl font-semibold">{title}</h3>
-      <p className="text-gray-600 dark:text-gray-400 text-sm max-w-xs">
-        {description}
-      </p>
+      <p className="text-gray-400 text-sm max-w-xs">{description}</p>
     </div>
   );
 }
+
+export { FuturisticAuthHome, FeatureCard, Step };
